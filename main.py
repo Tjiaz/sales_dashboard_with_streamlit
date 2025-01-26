@@ -1,39 +1,101 @@
+# import streamlit as st
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from datetime import datetime, date
+# import psycopg2
+# from psycopg2 import sql,pool
+
+# #initialize the connection pool
+# try:
+#     connection_pool = psycopg2.pool.ThreadedConnectionPool(
+#         minconn=5,
+#         maxconn=20,
+#         dbname="postgres",
+#         user="postgres",
+#         password="Ollatunji24$$",
+#         host="localhost",
+#         port="5432")
+    
+# except psycopg2.Error as e:
+#     st.error(f"Error creating connection pool: {e}")
+
+# #function to get a connection from the pool
+# def get_connection():
+#     try:
+#         connection = connection_pool.getconn()
+#         return connection
+#     except psycopg2.Error as e:
+#         st.error(f"Error getting connection from pool: {e}")
+#         return None
+    
+# #function to return connection to the pool
+# def return_connection(connection):
+#     try: 
+#         connection_pool.putconn(connection)
+#     except psycopg2.Error as e:
+#         st.error(f"Error returning connection to pool: {e}")
+
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, date
 import psycopg2
-from psycopg2 import sql,pool
+from psycopg2 import sql, pool
 
-#initialize the connection pool
-try:
-    connection_pool = psycopg2.pool.ThreadedConnectionPool(
-        minconn=5,
-        maxconn=20,
-        dbname="postgres",
-        user="postgres",
-        password="Ollatunji24$$",
-        host="localhost",
-        port="5432")
-    
-except psycopg2.Error as e:
-    st.error(f"Error creating connection pool: {e}")
+# Initialize the connection pool
+def init_connection_pool():
+    try:
+        # Get database URL from streamlit secrets
+        db_url = st.secrets["db_url"]
+        
+        # Parse the URL to get connection parameters
+        conn_params = {
+            "dbname": "postgres",  # This is typically 'postgres' for Supabase
+            "user": "postgres",    # This is typically 'postgres' for Supabase
+            "password": db_url.split(':')[2].split('@')[0],
+            "host": db_url.split('@')[1].split(':')[0],
+            "port": "5432"
+        }
+        
+        # Create the connection pool
+        return psycopg2.pool.ThreadedConnectionPool(
+            minconn=1,  # Reduced for cloud deployment
+            maxconn=10,  # Reduced for cloud deployment
+            **conn_params
+        )
+    except psycopg2.Error as e:
+        st.error(f"Error creating connection pool: {e}")
+        return None
 
-#function to get a connection from the pool
+# Initialize the pool as a global variable
+connection_pool = init_connection_pool()
+
+# Function to get a connection from the pool
 def get_connection():
     try:
-        connection = connection_pool.getconn()
-        return connection
+        if connection_pool:
+            connection = connection_pool.getconn()
+            return connection
+        else:
+            st.error("Connection pool not initialized")
+            return None
     except psycopg2.Error as e:
         st.error(f"Error getting connection from pool: {e}")
         return None
-    
-#function to return connection to the pool
+
+# Function to return connection to the pool
 def return_connection(connection):
-    try: 
-        connection_pool.putconn(connection)
+    try:
+        if connection_pool and connection:
+            connection_pool.putconn(connection)
     except psycopg2.Error as e:
         st.error(f"Error returning connection to pool: {e}")
+
+# Optional: Function to close the pool when the app stops
+def close_pool():
+    if connection_pool:
+        connection_pool.closeall()
 
 
 #function to execute a query
