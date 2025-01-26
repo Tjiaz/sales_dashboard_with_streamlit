@@ -56,6 +56,7 @@ def get_date_range():
     finally:
         return_connection(conn)
 
+
 def get_unique_category():
     conn = get_connection()
     if conn is None:
@@ -357,6 +358,9 @@ with tabs[2]:
                 "Top Products by Revenue",
                 "Product Name",
                 "Revenue",
+                #
+
+
                 orientation='h'
             ))
         else:
