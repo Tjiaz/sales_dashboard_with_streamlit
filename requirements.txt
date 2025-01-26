@@ -2,3 +2,5 @@ streamlit
 matplotlib
 pandas
 psycopg2-binary
+polars
+numpy
