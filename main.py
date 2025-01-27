@@ -42,12 +42,19 @@ import matplotlib.pyplot as plt
 from datetime import datetime, date
 import psycopg2
 from psycopg2 import sql, pool
+import os
 
 # Initialize the connection pool
 def init_connection_pool():
     try:
         # Get database URL from streamlit secrets
-        db_url = st.secrets["db_url"]
+          # Add debug print
+        print("Available secrets:", st.secrets.to_dict())
+        
+        # Try multiple ways to get the URL
+        db_url = st.secrets.get("db_url") or \
+                 os.getenv("DATABASE_URL") or \
+                 "postgresql://postgres:Ollatunji24$$@db.hnmnjgcxldyuoydzdqhp.supabase.co:5432/postgres"
         
         # Parse the URL to get connection parameters
         conn_params = {
