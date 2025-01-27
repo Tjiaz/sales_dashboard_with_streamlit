@@ -53,8 +53,8 @@ def init_connection_pool():
         
         # Try multiple ways to get the URL
         db_url = st.secrets.get("db_url") or \
-                 os.getenv("DATABASE_URL") or \
-                 "postgresql://postgres:Ollatunji24$$@db.hnmnjgcxldyuoydzdqhp.supabase.co:5432/postgres"
+                 os.getenv("DATABASE_URL") 
+                
         
         # Parse the URL to get connection parameters
         conn_params = {
